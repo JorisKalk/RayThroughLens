@@ -4,8 +4,6 @@ public class LensMain : MonoBehaviour
 {
     [Header("Refractive indices")]
     [SerializeField]
-    private float airIndex = 0f;
-    [SerializeField]
     private float lensIndex = 1.5f;
 
     [Header("Radius of lens (min 3)")]
@@ -73,8 +71,20 @@ public class LensMain : MonoBehaviour
     /// x value is the air index and y value is the lens index.
     /// </summary>
     /// <returns></returns>
-    public Vector2 ReturnRefractiveIndices()
+    public float ReturnRefractiveIndices()
     {
-        return new Vector2(airIndex, lensIndex);
+        return lensIndex;
+    }
+
+    public bool IsConverging()
+    {
+        if (lensType == LensType.Converging)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
