@@ -85,11 +85,6 @@ public class RayMain : MonoBehaviour
         else
         {
             hit = InvertedRayTargetPos(lensLayerOne);
-            //if (Vector2.Distance(currentPos, hit.point) > rayLengthLeft)
-            //{
-            //    ray.SetPosition(ray.positionCount - 1, currentPos + (currentDir * rayLengthLeft));
-            //    return;
-            //}
         }
 
 
@@ -103,8 +98,17 @@ public class RayMain : MonoBehaviour
 
             float lensRefIndex = lensOne.ReturnRefractiveIndices();
 
-            currentDir = CalculateInsertAngle(currentDir, hit.normal, airIndex, lensRefIndex);
-            rayLengthLeft -= Vector2.Distance(currentPos, hit.point);
+
+            if (lensOne.IsConverging() )
+            {
+                currentDir = CalculateInsertAngle(currentDir, hit.normal, airIndex, lensRefIndex);
+            }
+            else
+            {
+                currentDir = CalculateExitAngle(currentDir, hit.normal, airIndex, lensRefIndex);
+            }
+
+                rayLengthLeft -= Vector2.Distance(currentPos, hit.point);
             currentPos = hit.point;
             ray.positionCount++;
             //ray.SetPosition(ray.positionCount - 1, currentPos + (currentDir * rayLengthLeft));
@@ -114,6 +118,8 @@ public class RayMain : MonoBehaviour
 
     private void SimulateRayToLensTwo()
     {
+        
+
         currentDir.Normalize();
 
         RaycastHit2D hit;
@@ -121,11 +127,6 @@ public class RayMain : MonoBehaviour
         if (lensTwo.IsConverging())
         {
             hit = InvertedRayTargetPos(lensLayerTwo);
-            //if (Vector2.Distance(currentPos, hit.point) > rayLengthLeft)
-            //{
-            //    ray.SetPosition(ray.positionCount - 1, currentPos + (currentDir * rayLengthLeft));
-            //    return;
-            //}
         }
         else
         {
@@ -143,8 +144,17 @@ public class RayMain : MonoBehaviour
 
             float lensRefIndex = lensTwo.ReturnRefractiveIndices();
 
-            currentDir = CalculateExitAngle(currentDir, hit.normal, airIndex, lensRefIndex);
-            rayLengthLeft -= Vector2.Distance(currentPos, hit.point);
+            if (lensTwo.IsConverging() )
+            {
+                currentDir = CalculateExitAngle(currentDir, hit.normal, airIndex, lensRefIndex);
+            }
+            else
+            {
+                currentDir = CalculateInsertAngle(currentDir, hit.normal, airIndex, lensRefIndex);
+            }
+
+
+                rayLengthLeft -= Vector2.Distance(currentPos, hit.point);
             currentPos = hit.point;
             ray.positionCount++;
             ray.SetPosition(ray.positionCount - 1, currentPos + (currentDir * rayLengthLeft));
@@ -175,6 +185,13 @@ public class RayMain : MonoBehaviour
     {
         float impactAngle = Mathf.Acos(Vector2.Dot(dir, impactNormal));
         float newAngle = Mathf.Asin((lensRefIndex * Mathf.Sin(impactAngle)) / airRefIndex);
+        
+        if (rayStartDir.y > 0)
+        {
+            return (new Vector2(Mathf.Cos(newAngle), Mathf.Sin(-newAngle))) + impactNormal;
+        }
+
+
         return (new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle))) + impactNormal;
     }
 }
